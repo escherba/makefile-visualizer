@@ -10,7 +10,7 @@ This script visualizes the dependency of makefile and related files.
 ```bash
 LANG=C make -p \
 | python3 make_p_to_json.py \
-| python4 collapse_deps.py --prefix src/ \
+| python3 collapse_deps.py --prefix src/ \
 | python3 json_to_dot.py \
 | dot -Tpdf >| workflow.pdf
 ```

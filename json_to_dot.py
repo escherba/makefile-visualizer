@@ -39,26 +39,42 @@ def print_single_graph(graph, i, skiptargets=None):
         skiptargets = []
 
     for target, deps in graph.items():
+        skip = False
+        for skiptarget in skiptargets:
+            if target in graph[skiptarget] and not deps:
+                skip = True
+                break
+        if skip:
+            continue
         if target not in skiptargets:
             target_str = _escape(target)
             _register_node(target_str, i)
             target_node = name_to_node[target_str]
         for dep in deps:
+            if target in skiptargets:
+                continue
             dep_str = _escape(dep)
             if dep_str in parents:
                 _register_node(dep_str, i)
             else:
                 _register_node(dep_str, i, fillcolor="grey")
-            if target not in skiptargets:
-                print('{} -> {}'.format(target_node, name_to_node[dep_str]))
+            print('{} -> {}'.format(target_node, name_to_node[dep_str]))
     print("}")
 
 
 def _parse_args(args):
-    if len(args) != 1:
+    if len(args) not in [1, 2]:
         print('# convert a dependency graph stored in JSON format to DOT format')
         print('{} < deps.json | dot -Tpdf >| workflow.pdf'.format(args[0]))
         sys.exit(1)
+
+
+def _get_iostream(args):
+    num_args = len(args)
+    input_stream = sys.stdin
+    if num_args == 2:
+        input_stream = open(args[1], "r")
+    return input_stream
 
 
 def main(args):
@@ -75,7 +91,8 @@ digraph G {
     """)
     i = Id()
     skiptargets = [".PHONY", ".SUFFIXES"]
-    for graph in json.load(sys.stdin):
+    input_stream = _get_iostream(args)
+    for graph in json.load(input_stream):
         print_single_graph(graph, i, skiptargets=skiptargets)
     print("}")
 

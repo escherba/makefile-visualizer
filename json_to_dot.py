@@ -39,12 +39,7 @@ def print_single_graph(graph, i, skiptargets=None):
         skiptargets = []
 
     for target, deps in graph.items():
-        skip = False
-        for skiptarget in skiptargets:
-            if target in graph[skiptarget] and not deps:
-                skip = True
-                break
-        if skip:
+        if any(target in graph[skip] for skip in skiptargets) and not deps:
             continue
         if target not in skiptargets:
             target_str = _escape(target)

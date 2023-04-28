@@ -28,22 +28,34 @@ def print_single_graph(graph, i, skiptargets=None):
             name_to_node[name] = node
             print(f'{node}[label={name}, style = "solid,filled", fillcolor="{fillcolor}"]')
 
-    print("subgraph cluster{}{{".format(i.id))
+    print("subgraph cluster{}{{peripheries=0 ".format(i.id))
+
+    if skiptargets is None:
+        skiptargets = []
 
     parents = []
     for target, deps in graph.items():
         target_str = _escape(target)
         parents.append(target_str)
 
-    if skiptargets is None:
-        skiptargets = []
+    roots = set(parents)
+    for target, deps in graph.items():
+        if target in skiptargets:
+            continue
+        for dep in deps:
+            dep_str = _escape(dep)
+            if dep_str in roots:
+                roots.remove(dep_str)
 
     for target, deps in graph.items():
         if any(target in graph[skip] for skip in skiptargets) and not deps:
             continue
         if target not in skiptargets:
             target_str = _escape(target)
-            _register_node(target_str, i)
+            if target_str in roots:
+                _register_node(target_str, i, fillcolor="#DAE8FC")
+            else:
+                _register_node(target_str, i)
             target_node = name_to_node[target_str]
         for dep in deps:
             if target in skiptargets:
@@ -52,7 +64,7 @@ def print_single_graph(graph, i, skiptargets=None):
             if dep_str in parents:
                 _register_node(dep_str, i)
             else:
-                _register_node(dep_str, i, fillcolor="grey")
+                _register_node(dep_str, i, fillcolor="#F5F5F5")
             print('{} -> {}'.format(target_node, name_to_node[dep_str]))
     print("}")
 
@@ -85,7 +97,7 @@ digraph G {
     ]
     """)
     i = Id()
-    skiptargets = [".PHONY", ".SUFFIXES"]
+    skiptargets = [".PHONY", ".SUFFIXES", ".DELETE_ON_ERROR"]
     input_stream = _get_iostream(args)
     for graph in json.load(input_stream):
         print_single_graph(graph, i, skiptargets=skiptargets)

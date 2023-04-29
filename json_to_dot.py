@@ -2,6 +2,7 @@
 
 import sys
 import json
+from collections import defaultdict
 
 
 class Id(object):
@@ -33,10 +34,15 @@ def print_single_graph(graph, i, skiptargets=None):
     if skiptargets is None:
         skiptargets = []
 
+    phony_str = _escape(".PHONY")
     parents = []
     for target, deps in graph.items():
-        target_str = _escape(target)
-        parents.append(target_str)
+        parents.append(_escape(target))
+
+    inverse_graph = defaultdict(set)
+    for target, deps in graph.items():
+        for dep in deps:
+            inverse_graph[_escape(dep)].add(_escape(target))
 
     roots = set(parents)
     for target, deps in graph.items():
@@ -50,21 +56,26 @@ def print_single_graph(graph, i, skiptargets=None):
     for target, deps in graph.items():
         if any(target in graph[skip] for skip in skiptargets) and not deps:
             continue
-        if target not in skiptargets:
-            target_str = _escape(target)
-            if target_str in roots:
-                _register_node(target_str, i, fillcolor="#DAE8FC")
-            else:
-                _register_node(target_str, i)
-            target_node = name_to_node[target_str]
+        if target in skiptargets:
+            continue
+        target_str = _escape(target)
+        if target_str in roots:
+            _register_node(target_str, i, fillcolor="#DAE8FC")
+        elif phony_str in inverse_graph[target_str]:
+            _register_node(target_str, i)
+        else:
+            _register_node(target_str, i, fillcolor="#D5E8D4")
+        target_node = name_to_node[target_str]
         for dep in deps:
             if target in skiptargets:
                 continue
             dep_str = _escape(dep)
-            if dep_str in parents:
+            if dep_str not in parents:
+                _register_node(dep_str, i, fillcolor="#F5F5F5")
+            elif phony_str in inverse_graph[dep_str]:
                 _register_node(dep_str, i)
             else:
-                _register_node(dep_str, i, fillcolor="#F5F5F5")
+                _register_node(dep_str, i, fillcolor="#D5E8D4")
             print('{} -> {}'.format(target_node, name_to_node[dep_str]))
     print("}")
 

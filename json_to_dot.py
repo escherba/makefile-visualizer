@@ -71,7 +71,7 @@ def print_single_graph(graph, i, skiptargets=None):
                 continue
             dep_str = _escape(dep)
             if dep_str not in parents:
-                _register_node(dep_str, i, fillcolor="#F5F5F5")
+                _register_node(dep_str, i, fillcolor="#FFE6CC")
             elif phony_str in inverse_graph[dep_str]:
                 _register_node(dep_str, i)
             else:

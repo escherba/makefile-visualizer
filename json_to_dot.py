@@ -17,6 +17,10 @@ class Id(object):
         return self._id
 
 
+SOURCE = "#D5E8D4"
+INTERMEDIATE = "#FFE6CC"
+FINAL = "#DAE8FC"
+
 def print_single_graph(graph, i, skiptargets=None):
     name_to_node = {}
 
@@ -60,22 +64,22 @@ def print_single_graph(graph, i, skiptargets=None):
             continue
         target_str = _escape(target)
         if target_str in roots:
-            _register_node(target_str, i, fillcolor="#DAE8FC")
+            _register_node(target_str, i, fillcolor=FINAL)
         elif phony_str in inverse_graph[target_str]:
             _register_node(target_str, i)
         else:
-            _register_node(target_str, i, fillcolor="#D5E8D4")
+            _register_node(target_str, i, fillcolor=INTERMEDIATE)
         target_node = name_to_node[target_str]
         for dep in deps:
             if target in skiptargets:
                 continue
             dep_str = _escape(dep)
             if dep_str not in parents:
-                _register_node(dep_str, i, fillcolor="#FFE6CC")
+                _register_node(dep_str, i, fillcolor=SOURCE)
             elif phony_str in inverse_graph[dep_str]:
                 _register_node(dep_str, i)
             else:
-                _register_node(dep_str, i, fillcolor="#D5E8D4")
+                _register_node(dep_str, i, fillcolor=INTERMEDIATE)
             print('{} -> {}'.format(target_node, name_to_node[dep_str]))
     print("}")
 

@@ -20,6 +20,7 @@ class Id(object):
 SOURCE = "#D5E8D4"
 INTERMEDIATE = "#FFE6CC"
 FINAL = "#DAE8FC"
+OTHER = "#F5F5F5"
 
 def print_single_graph(graph, i, skiptargets=None):
     name_to_node = {}
@@ -66,7 +67,7 @@ def print_single_graph(graph, i, skiptargets=None):
         if target_str in roots:
             _register_node(target_str, i, fillcolor=FINAL)
         elif phony_str in inverse_graph[target_str]:
-            _register_node(target_str, i)
+            _register_node(target_str, i, fillcolor=OTHER)
         else:
             _register_node(target_str, i, fillcolor=INTERMEDIATE)
         target_node = name_to_node[target_str]
@@ -77,7 +78,7 @@ def print_single_graph(graph, i, skiptargets=None):
             if dep_str not in parents:
                 _register_node(dep_str, i, fillcolor=SOURCE)
             elif phony_str in inverse_graph[dep_str]:
-                _register_node(dep_str, i)
+                _register_node(dep_str, i, fillcolor=OTHER)
             else:
                 _register_node(dep_str, i, fillcolor=INTERMEDIATE)
             print('{} -> {}'.format(target_node, name_to_node[dep_str]))

@@ -17,10 +17,10 @@ class Id(object):
         return self._id
 
 
-SOURCE = "#D5E8D4"
-INTERMEDIATE = "#FFE6CC"
-FINAL = "#DAE8FC"
-OTHER = "#F5F5F5"
+OTHER = {"color": "#82B366", "fillcolor": "#D5E8D4"}  # green
+INTERMEDIATE = {"color": "#D79B00", "fillcolor": "#FFE6CC"}  # orange
+FINAL = {"color": "#6C8EBF", "fillcolor": "#DAE8FC"}  # blue
+SOURCE = {"color": "#666666", "fillcolor": "#F5F5F5"}  # grey
 
 def print_single_graph(graph, i, skiptargets=None):
     name_to_node = {}
@@ -28,11 +28,11 @@ def print_single_graph(graph, i, skiptargets=None):
     def _escape(s):
         return '"{}"'.format(s.replace('"', r'\"'))
 
-    def _register_node(name, i, fillcolor="none"):
+    def _register_node(name, i, color="black", fillcolor="none"):
         if not (name in name_to_node):
             node = 'n{}'.format(i.id)
             name_to_node[name] = node
-            print(f'{node}[label={name}, style = "solid,filled", fillcolor="{fillcolor}"]')
+            print(f'{node}[label={name}, style="solid,filled", color="{color}", fillcolor="{fillcolor}"]')
 
     print("subgraph cluster{}{{peripheries=0 ".format(i.id))
 
@@ -65,22 +65,22 @@ def print_single_graph(graph, i, skiptargets=None):
             continue
         target_str = _escape(target)
         if target_str in roots:
-            _register_node(target_str, i, fillcolor=FINAL)
+            _register_node(target_str, i, **FINAL)
         elif phony_str in inverse_graph[target_str]:
-            _register_node(target_str, i, fillcolor=OTHER)
+            _register_node(target_str, i, **OTHER)
         else:
-            _register_node(target_str, i, fillcolor=INTERMEDIATE)
+            _register_node(target_str, i, **INTERMEDIATE)
         target_node = name_to_node[target_str]
         for dep in deps:
             if target in skiptargets:
                 continue
             dep_str = _escape(dep)
             if dep_str not in parents:
-                _register_node(dep_str, i, fillcolor=SOURCE)
+                _register_node(dep_str, i, **SOURCE)
             elif phony_str in inverse_graph[dep_str]:
-                _register_node(dep_str, i, fillcolor=OTHER)
+                _register_node(dep_str, i, **OTHER)
             else:
-                _register_node(dep_str, i, fillcolor=INTERMEDIATE)
+                _register_node(dep_str, i, **INTERMEDIATE)
             print('{} -> {}'.format(target_node, name_to_node[dep_str]))
     print("}")
 

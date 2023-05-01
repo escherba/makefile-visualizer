@@ -60,7 +60,7 @@ def print_single_graph(graph, i, skiptargets=None):
                 roots.remove(dep_str)
 
     for target, deps in graph.items():
-        if any(target in graph[skip] for skip in skiptargets) and not deps:
+        if any(target in graph.get(skip, []) for skip in skiptargets) and not deps:
             continue
         if target in skiptargets:
             continue

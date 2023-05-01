@@ -21,6 +21,7 @@ OTHER = {"color": "#82B366", "fillcolor": "#D5E8D4"}  # green
 INTERMEDIATE = {"color": "#D79B00", "fillcolor": "#FFE6CC"}  # orange
 FINAL = {"color": "#6C8EBF", "fillcolor": "#DAE8FC"}  # blue
 SOURCE = {"color": "#666666", "fillcolor": "#F5F5F5"}  # grey
+ORPHAN = {"color": "#9673A6", "fillcolor": "#E1D5E7"}  # purple
 
 def print_single_graph(graph, i, skiptargets=None):
     name_to_node = {}
@@ -63,6 +64,7 @@ def print_single_graph(graph, i, skiptargets=None):
             continue
         if target in skiptargets:
             continue
+
         target_str = _escape(target)
         if target_str in roots:
             _register_node(target_str, i, **FINAL)
@@ -77,6 +79,8 @@ def print_single_graph(graph, i, skiptargets=None):
             dep_str = _escape(dep)
             if dep_str not in parents:
                 _register_node(dep_str, i, **SOURCE)
+            elif not graph[dep]:
+                _register_node(dep_str, i, **ORPHAN)
             elif phony_str in inverse_graph[dep_str]:
                 _register_node(dep_str, i, **OTHER)
             else:
